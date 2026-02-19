@@ -423,7 +423,7 @@ https://github.com/user-attachments/assets/c336e19b-3448-4d92-ad4a-72cf7ec7185c
 
 ### vkQuake + RmlUi 
 
-[vkQuake + RmlUi](https://github.com/Novum/vkQuake). A vkQuake fork that replaces Quake's menu and HUD systems with RmlUi. \[[teaser trailer](https://youtu.be/vEAeOuetTQ0)\]
+[vkQuake + RmlUi](https://github.com/bradenleague/vkQuake-RmlUi). A vkQuake fork that replaces Quake's menu and HUD systems with RmlUi. \[[teaser trailer](https://youtu.be/vEAeOuetTQ0)\]
 
 <img width="2247" height="1228" alt="vkQuake + RmlUi" src="https://github.com/user-attachments/assets/0ef7f033-6852-490b-9fe4-14100995b6a7" />
 
