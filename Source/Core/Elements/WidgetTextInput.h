@@ -180,8 +180,10 @@ private:
 
 	/// Shows or hides the cursor.
 	/// @param[in] show True to show the cursor, false to hide it.
-	/// @param[in] move_to_cursor True to force the cursor to be visible, false to not scroll the widget.
-	void ShowCursor(bool show, bool move_to_cursor = true);
+	void ShowCursor(bool show);
+
+	/// Scroll the view to make the cursor visible.
+	void MoveToCursor();
 
 	/// Formats the element, laying out the text and inserting scrollbars as appropriate.
 	void FormatElement();
