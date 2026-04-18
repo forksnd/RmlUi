@@ -2800,6 +2800,10 @@ void Element::UpdateTransformState()
 	if (!dirty_perspective && !dirty_transform)
 		return;
 
+	// Ensure parent is updated since elements may not always be rendered in tree depth order.
+	if (parent)
+		parent->UpdateTransformState();
+
 	const ComputedValues& computed = meta->computed_values;
 
 	const Vector2f pos = GetAbsoluteOffset(BoxArea::Border);
