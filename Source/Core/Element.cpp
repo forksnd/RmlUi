@@ -1827,15 +1827,20 @@ void Element::OnPropertyChange(const PropertyIdSet& changed_properties)
 	);
 	const bool filter_or_mask_changed = (changed_properties.Contains(PropertyId::Filter) || changed_properties.Contains(PropertyId::BackdropFilter) ||
 		changed_properties.Contains(PropertyId::MaskImage));
+	const bool perspective_changed = changed_properties.Contains(PropertyId::Perspective) ||
+		changed_properties.Contains(PropertyId::PerspectiveOriginX) || changed_properties.Contains(PropertyId::PerspectiveOriginY);
+	const bool transform_changed = changed_properties.Contains(PropertyId::Transform) || changed_properties.Contains(PropertyId::TransformOriginX) ||
+		changed_properties.Contains(PropertyId::TransformOriginY) || changed_properties.Contains(PropertyId::TransformOriginZ);
 
 	// Update the z-index and stacking context.
-	if (changed_properties.Contains(PropertyId::ZIndex) || filter_or_mask_changed)
+	if (changed_properties.Contains(PropertyId::ZIndex) || filter_or_mask_changed || perspective_changed || transform_changed)
 	{
 		const Style::ZIndex z_index_property = meta->computed_values.z_index();
 
 		const float new_z_index = (z_index_property.type == Style::ZIndex::Auto ? 0.f : z_index_property.value);
 		const bool enable_local_stacking_context = (z_index_property.type != Style::ZIndex::Auto || local_stacking_context_forced ||
-			meta->computed_values.has_filter() || meta->computed_values.has_backdrop_filter() || meta->computed_values.has_mask_image());
+			meta->computed_values.has_filter() || meta->computed_values.has_backdrop_filter() || meta->computed_values.has_mask_image() ||
+			meta->computed_values.has_local_transform() || meta->computed_values.has_local_perspective());
 
 		if (z_index != new_z_index || local_stacking_context != enable_local_stacking_context)
 		{
@@ -1902,22 +1907,11 @@ void Element::OnPropertyChange(const PropertyIdSet& changed_properties)
 		meta->effects.DirtyEffectsData();
 	}
 
-	// Check for `perspective' and `perspective-origin' changes
-	if (changed_properties.Contains(PropertyId::Perspective) ||        //
-		changed_properties.Contains(PropertyId::PerspectiveOriginX) || //
-		changed_properties.Contains(PropertyId::PerspectiveOriginY))
-	{
+	if (perspective_changed)
 		DirtyTransformState(true, false);
-	}
 
-	// Check for `transform' and `transform-origin' changes
-	if (changed_properties.Contains(PropertyId::Transform) ||        //
-		changed_properties.Contains(PropertyId::TransformOriginX) || //
-		changed_properties.Contains(PropertyId::TransformOriginY) || //
-		changed_properties.Contains(PropertyId::TransformOriginZ))
-	{
+	if (transform_changed)
 		DirtyTransformState(false, true);
-	}
 
 	// Check for `animation' changes
 	if (changed_properties.Contains(PropertyId::Animation))
