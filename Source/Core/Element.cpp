@@ -2415,15 +2415,20 @@ void Element::AddToStackingContext(Vector<StackingContextChild>& stacking_childr
 
 void Element::DirtyStackingContext()
 {
-	// Find the first ancestor that has a local stacking context, that is our stacking context parent.
+	if (Element* stacking_context_parent = ClosestStackingContextContainer())
+		stacking_context_parent->stacking_context_dirty = true;
+}
+
+Element* Element::ClosestStackingContextContainer()
+{
+	// Find the first ancestor, or this, that has a local stacking context. That is our stacking context container.
 	Element* stacking_context_parent = this;
 	while (stacking_context_parent && !stacking_context_parent->local_stacking_context)
 	{
 		stacking_context_parent = stacking_context_parent->GetParentNode();
 	}
 
-	if (stacking_context_parent)
-		stacking_context_parent->stacking_context_dirty = true;
+	return stacking_context_parent;
 }
 
 void Element::DirtyDefinition(DirtyNodes dirty_nodes)
@@ -2794,10 +2799,6 @@ void Element::UpdateTransformState()
 	if (!dirty_perspective && !dirty_transform)
 		return;
 
-	// Ensure parent is updated since elements may not always be rendered in tree depth order.
-	if (parent)
-		parent->UpdateTransformState();
-
 	const ComputedValues& computed = meta->computed_values;
 
 	const Vector2f pos = GetAbsoluteOffset(BoxArea::Border);
@@ -2900,12 +2901,13 @@ void Element::UpdateTransformState()
 			// believe the motivation is. Then we would need to subtract the absolute zero-offsets during geometry submit whenever we have transforms.
 		}
 
-		if (parent && parent->transform_state)
+		Element* stacking_parent = parent ? parent->ClosestStackingContextContainer() : nullptr;
+		if (stacking_parent && stacking_parent->transform_state)
 		{
 			// Apply the parent's local perspective and transform.
 			// @performance: If we have no local transform and no parent perspective, we can effectively just point to the parent transform instead of
 			// copying it.
-			const TransformState& parent_state = *parent->transform_state;
+			const TransformState& parent_state = *stacking_parent->transform_state;
 
 			if (auto parent_perspective = parent_state.GetLocalPerspective())
 			{
@@ -2936,8 +2938,8 @@ void Element::UpdateTransformState()
 	// A change in perspective or transform will require an update to children transforms as well.
 	if (perspective_or_transform_changed)
 	{
-		for (size_t i = 0; i < children.size(); i++)
-			children[i]->DirtyTransformState(false, true);
+		for (Element* stacking_child : stacking_context)
+			stacking_child->DirtyTransformState(false, true);
 	}
 
 	// No reason to keep the transform state around if transform and perspective have been removed.
