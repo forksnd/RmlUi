@@ -303,9 +303,9 @@ public:
 		// src handled by Parse
 
 		// extended
-		specification.RegisterProperty("--rmlui-fallback-face", "false", false, false, CastId(FontFaceId::FallbackFace))
+		specification.RegisterProperty("-rmlui-fallback-face", "false", false, false, CastId(FontFaceId::FallbackFace))
 			.AddParser("keyword", "false, true");
-		specification.RegisterProperty("--rmlui-face-index", "0", false, false, CastId(FontFaceId::FaceIndex)).AddParser("number");
+		specification.RegisterProperty("-rmlui-face-index", "0", false, false, CastId(FontFaceId::FaceIndex)).AddParser("number");
 	}
 
 	void SetTargetProperties(PropertyDictionary* _properties) { properties = _properties; }
